@@ -33,11 +33,12 @@ class RAG:
 
     def generate_answer(self, question, instructions):
         context_items = self.retrieve(question)
-        context = "\n".join([f"{text} (Source: {url})" for text, url, answer in context_items])
+        context = "\n\n".join([f"{text} (Source: {url})" for text, url, answer in context_items])
 
         prompt = f"""{instructions}
 
 Context:
+
 {context}
 
 Question: {question}
@@ -64,7 +65,8 @@ Answer:"""
             result = response.json()
 
         answer = result["choices"][0]["message"]["content"].strip()
-        links = [{"url": url, "text": answer[:200]} for text, url, answer in context_items]
+        links = [{"url": url, "text": answer[:200] if answer else text[:200]} for text, url, answer in context_items]
+
 
         return {"answer": answer, "links": links}
 
