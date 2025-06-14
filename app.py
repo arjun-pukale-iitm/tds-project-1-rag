@@ -56,6 +56,8 @@ def hello():
 @app.post("/api/", response_model=AnswerResponse)
 def answer_question(request: QuestionRequest):
     question = request.question
+    print("==============================")
     print("question: ",question)
-
-    return rag_model.generate_answer(question, instructions)
+    response = rag_model.generate_answer(question, instructions)
+    print("RAG response: \n",response)
+    return response

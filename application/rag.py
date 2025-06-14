@@ -67,8 +67,8 @@ Answer:"""
         answer = result["choices"][0]["message"]["content"].strip()
         links = [{"url": url, "text": answer[:200] if answer else text[:200]} for text, url, answer in context_items]
 
-
-        return {"answer": answer, "links": links}
+        response = {"answer": answer, "links": links} 
+        return response
 
 
     def save(self, path="rag_model"):
