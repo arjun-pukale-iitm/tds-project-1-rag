@@ -3,7 +3,7 @@ import os
 import json
 from datetime import datetime, timezone # Ensure timezone is imported
 from urllib.parse import urljoin, urlencode
-
+import application.config as app_config
 # ========== CONFIGURATION ==========
 
 DISCOURSE_BASE_URL = "https://discourse.onlinedegree.iitm.ac.in/"
@@ -12,9 +12,9 @@ CATEGORY_ID = 34
 START_DATE = "2025-01-01" # Inclusive
 END_DATE = "2025-04-15"   # Inclusive
 
-RAW_COOKIE_STRING = """
-_ga_MXPR4XHYG9=GS2.1.s1749004062$o204$g0$t1749004073$j49$l0$h0; _ga=GA1.1.251698787.1717248238; _ga_5HTJMW67XK=GS2.1.s1749004079$o285$g0$t1749004085$j54$l0$h0; _ga_WGM85Z9ZZV=GS1.1.1723427490.97.0.1723427530.0.0.0; _ga_08NPRH5L4M=GS1.1.1719681202.6.0.1719681207.55.0.0; _t=zC%2Fzfnh2PunFrDtR6t2oeXUcdHbq7PmCgcrred9mCko3oWJ%2BTtKqmaNfTgPS9OFSD9%2F1fZKlkAixB8rIauyinB7dmqvDtPQdIFRcfuTjhy0KgMeHmAY8GPzW3nbIW8e3rqcUFb9LNOUK5sbu6YJ9VDKPuP7pcQUHKm4AiInE5R6AOl8x6U%2F3%2F3arGihxeUdxjfwgRos8CGu1fUWj26tDilCQmcRoMlgNR1Shl1YeGcwd5PiSH%2BEL%2F2YYCfCPexkokFs2Lx34kttBQ%2ForjXZfkedamVnm8aNe25alxr%2BeocHGhsB%2FaZME2mRy%2FLxkK7K72aKNbA%3D%3D--wofkMTwHLRDmPYc9--GsjN2zYBWPTPtzqEaFJBFw%3D%3D; _gcl_au=1.1.645049058.1745747143; _gid=GA1.3.1707609093.1749004063; _forum_session=xhm4TEUxyfE%2BZ8qyI7ZUUTul4TaLPpe3a2InYL9iuf5jaJT%2Fd5vyG%2BbyMlI9bBDaN8obdPX71n%2BUVmsS7GkNAKVwezi0alksWowCZXbMp3%2BVDfSXgEwV%2FD7HJVlkZ7XAShPZ5n4aGIJjdsGjH8xJ%2Fxw%2BVospTjZCVyrTf5OSmbJodbCk2RitvEFU5g8DrI%2BecLey98ZzpVkpR4i30niMjTF%2FGGDwllqME37CiBJ%2BuV6HyTMxoWG06nKEFSPJggF2Ek60QXs2egvyk%2BIW%2BffcaKacDR42dg%3D%3D--XJblFySw1hquOzDa--WQfIvZY9mBwZG1ABE1Ciyw%3D%3D
-"""
+RAW_COOKIE_STRING = app_config.DISCOURSE_COOKIE_STRING
+
+
 # Replace with your actual cookie string
 
 OUTPUT_DIR = "discourse_json"
@@ -28,6 +28,7 @@ all_thread_posts = []
 def parse_cookie_string(raw_cookie_string):
     """Parses a raw cookie string into a dictionary."""
     cookies = {}
+    print("RAW_COOKIE_STRING: ", raw_cookie_string)
     if not raw_cookie_string.strip():
         print("Warning: RAW_COOKIE_STRING is empty. Requests might fail if authentication is needed.")
         return cookies
