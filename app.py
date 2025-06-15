@@ -5,7 +5,7 @@ from application.rag import RAG
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 print("Imported required packages")
@@ -42,6 +42,7 @@ class AnswerResponse(BaseModel):
 
 class QuestionRequest(BaseModel):
     question: str
+    image: Optional[str] = None 
 
 
 instructions = '''
@@ -53,11 +54,14 @@ You are a helpful Teaching Assistant. Use the context below to help answer the q
 def hello():
     return "Hello World !!!"
 
-@app.post("/api/", response_model=AnswerResponse)
+@app.post("/api", response_model=AnswerResponse)
 def answer_question(request: QuestionRequest):
     question = request.question
+    image = request.image  # base64 string or None
     print("==============================")
     print("question: ",question)
-    response = rag_model.generate_answer(question, instructions)
+    if image:
+        print("image: ",image)
+    response = rag_model.generate_answer(question, instructions, image)
     print("RAG response: \n",response)
     return response

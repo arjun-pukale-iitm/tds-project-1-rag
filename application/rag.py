@@ -5,6 +5,8 @@ import json
 import numpy as np
 import application.config as app_config
 import os
+import imghdr
+import base64
 
 class RAG:
     def __init__(self, docs, model_name="multi-qa-MiniLM-L6-cos-v1"):
@@ -30,8 +32,22 @@ class RAG:
         query_vec = self.model.encode([query], convert_to_numpy=True)
         D, I = self.index.search(np.array(query_vec), k)
         return [(self.texts[i], self.urls[i], self.answers[i]) for i in I[0]]
+    
 
-    def generate_answer(self, question, instructions):
+    def _detect_image_mime_type(self, image_base64: str) -> str:
+        """Detect MIME type from base64-encoded image string."""
+        try:
+            image_data = base64.b64decode(image_base64)
+            image_type = imghdr.what(None, h=image_data)
+            if image_type:
+                return f"image/{'jpeg' if image_type == 'jpg' else image_type}"
+        except Exception:
+            pass
+        return "image/png"  # Fallback
+
+
+
+    def generate_answer(self, question, instructions, image_base64=None):
         context_items = self.retrieve(question)
         context = "\n\n".join([f"{text} (Source: {url})" for text, url, answer in context_items])
 
@@ -52,11 +68,38 @@ Answer:"""
             "Content-Type": "application/json"
         }
 
+        messages = None
+        if image_base64:
+            mime_type = self._detect_image_mime_type(image_base64)
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{mime_type};base64,{image_base64}"
+                            }
+                        }
+                    ]
+                }
+            ]
+        else:
+            messages = [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+
+
         data = {
             "model": app_config.OPENAI_MODEL,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ],
+            "messages": messages,
             "temperature": 0.2
         }
 
